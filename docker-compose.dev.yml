@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: emlak-backend-dev
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - JWT_SECRET=dev-secret-key
+      - DATABASE_PATH=/app/data/emlak.db
+      - UPLOAD_PATH=/app/uploads
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/data:/app/data
+      - ./backend/uploads:/app/uploads
+    ports:
+      - "3001:3001"
+    command: npx nodemon src/index.js
+    networks:
+      - emlak-dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: emlak-frontend-dev
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - emlak-dev
+
+networks:
+  emlak-dev:
+    driver: bridge

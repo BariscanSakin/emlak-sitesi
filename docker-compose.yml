@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: emlak-backend
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - JWT_SECRET=${JWT_SECRET:-degistirmeniz-gereken-gizli-anahtar}
+      - DATABASE_PATH=/app/data/emlak.db
+      - UPLOAD_PATH=/app/uploads
+    volumes:
+      - backend-data:/app/data
+      - backend-uploads:/app/uploads
+    networks:
+      - emlak-network
+
+  frontend:
+    build: ./frontend
+    container_name: emlak-frontend
+    restart: always
+    ports:
+      - "80:80"
+      # SSL için aşağıdaki satırın yorumunu kaldırın:
+      # - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - emlak-network
+
+volumes:
+  backend-data:
+    driver: local
+  backend-uploads:
+    driver: local
+
+networks:
+  emlak-network:
+    driver: bridge
